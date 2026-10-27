@@ -1,0 +1,902 @@
+{
+  "generated_utc": "2026-09-24T10:23:10+00:00",
+  "split": "confirm",
+  "definitions": {
+    "two_order_view": "synth_attribution.py counts both surface option orders per item as separate views (n=1200). Feeds the seven-condition selectivity table and, since 2026-09-21, the follow(diff) table too.",
+    "one_order_view": "single_order_balanced in synth_counterfactual_follow.py: one order per source pair, exactly balanced. Avoids double-counting the shared waveform but still samples the order effect once per pair.",
+    "pair_mean_view": "Averages within a source pair then over pairs. This is the estimator that removes the surface-order effect, and the one to prefer.",
+    "selectivity": "A_diff - A_same: P(answer changes | class change) - P(answer changes | matched in-place rewrite).",
+    "follow_diff": "P(answer = donor's class | different-class replacement). Identically accuracy(diff): the different-class condition's ground truth is the donor class.",
+    "null_model": "(2a-1)^2: selectivity a two-alternative model with no evidence use still produces. Reported both with a single a and per-condition; the independence premise does not hold, so it is an upper bound.",
+    "E2": "original correct and same-class correct.",
+    "sham_change_rate": "P(answer changes | no-op rewrite), the editing-pipeline artefact floor.",
+    "confidence_intervals": "Cluster bootstrap resampling source pairs, not views, because the two orders of a pair share one waveform."
+  },
+  "sources_sha256": {
+    "outputs/round2/confirm_qwen3b.json": "fd13a3a92ca904456c32fb577334170748913423d4cd98c8fd1299464da872d7",
+    "outputs/round2/confirm_qwen7b.json": "3769daa68c26d9ff9a5d8b39e5042c2e3e319f8415a88ae157505991ccc35157",
+    "outputs/round2/confirm_af3.json": "78628faebdfdf40d060e1411fd2d003c5c8b3f04980a371a6336ea21d1ff0734",
+    "outputs/p0_fun_audio_chat/confirm_fun_audio_chat_8b.json": "152553a294f42097823f51502273896a961d0fe9d05737d6cd1030ebe3d4d94d",
+    "outputs/round2/r2v2_qwen3b.jsonl": "8ca1db38def54cecb58713c8114a2226c9bcaf12f48860e76d83c14797459d2e",
+    "outputs/round2/r2v2_qwen7b.jsonl": "ea371ce7452cefde465aaff77520c389ad163ff102f919ec7502ee0e9c56e3da",
+    "outputs/p0_fun_audio_chat/fun_audio_chat_8b.jsonl": "39ca92bace02af6e0ce4c949e7dfcf9e11ac21fdf7d2293fb88afe20102af0dd",
+    "outputs/p0_fun_audio_chat/counterfactual_follow_3models.json": "136c314f3a93b27a5389527e0a481142d3fd02c38ebcc7b5cbc8dd55f21d2bb2",
+    "outputs/round2/confirm_confound.json": "afb1cd0f1b94e5499a3746793ba6dab38c3fb6d25830bb219342afe4c1d1553d",
+    "outputs/round2/confirm_confound_view.json": "ea55e86bf871dae0d0310b1e11ec9956ef358f12d467d5ddbe682952dec4ad13",
+    "outputs/round2/confirm_class_profile.json": "b54d540e468b11aee7adb52a224d44d0adcf5d8eb27893564453075ec40432fa"
+  },
+  "models": {
+    "r2_qwen3b": {
+      "display": "Qwen2.5-Omni-3B",
+      "family": "Qwen2.5-Omni",
+      "attribution": {
+        "source": "outputs/round2/confirm_qwen3b.json",
+        "views": 1200,
+        "records": 8400,
+        "records_dropped_unparsed": 0,
+        "clips": 600,
+        "original_accuracy": 0.8525,
+        "accuracy_by_condition": {
+          "original": 0.8525,
+          "target_replaced_diff": 0.8383333333333334,
+          "target_replaced_same": 0.8408333333333333,
+          "nuisance_removed": 0.8783333333333333,
+          "background_removed": 0.8575,
+          "silence": 0.49333333333333335,
+          "sham": 0.8516666666666667
+        },
+        "A_diff": 0.7025,
+        "A_same": 0.125,
+        "A_nuisance_removed": 0.07083333333333333,
+        "A_background_removed": 0.015,
+        "A_sham": 0.009166666666666667,
+        "A_silence": 0.4275,
+        "selectivity": 0.5775,
+        "selectivity_ci95": [
+          0.54,
+          0.6166666666666667
+        ],
+        "competence_gate": {
+          "original_accuracy": 0.8525,
+          "required": 0.75,
+          "silence_answer_change": 0.4275,
+          "silence_required": 0.2,
+          "passed": true
+        },
+        "sham_gate": {
+          "A_sham": 0.009166666666666667,
+          "required_max": 0.05,
+          "passed": true
+        },
+        "verdict": "SELECTIVITY POSITIVE: answers follow the evidence identity more than a matched in-place rewrite"
+      },
+      "follow": {
+        "source": "outputs/p0_fun_audio_chat/counterfactual_follow_3models.json",
+        "predictions": "outputs/round2/r2v2_qwen3b.jsonl",
+        "aggregation": "pooled_both_orders",
+        "n_views": 1200,
+        "n_source_pairs": 600,
+        "original_accuracy": 0.8525,
+        "subsets": {
+          "all": {
+            "n": 1200,
+            "follow_diff": {
+              "rate": 0.8383333333333334,
+              "ci95": [
+                0.815,
+                0.8616666666666667
+              ]
+            },
+            "preserve_same": {
+              "rate": 0.8408333333333333,
+              "ci95": [
+                0.8183333333333334,
+                0.8633333333333333
+              ]
+            },
+            "accuracy_diff": 0.8383333333333334
+          },
+          "E1_orig_correct": {
+            "n": 1023,
+            "follow_diff": {
+              "rate": 0.8172043010752689,
+              "ci95": [
+                0.7891156462585034,
+                0.8441814595660749
+              ]
+            },
+            "preserve_same": {
+              "rate": 0.9198435972629521,
+              "ci95": [
+                0.9009803921568628,
+                0.9377431906614786
+              ]
+            },
+            "accuracy_diff": 0.8172043010752689
+          },
+          "E2_orig_and_same": {
+            "n": 941,
+            "follow_diff": {
+              "rate": 0.8023379383634431,
+              "ci95": [
+                0.7723919915700738,
+                0.8301282051282052
+              ]
+            },
+            "preserve_same": {
+              "rate": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            "accuracy_diff": 0.8023379383634431
+          },
+          "E3_all_three": {
+            "n": 938,
+            "follow_diff": {
+              "rate": 0.8017057569296375,
+              "ci95": [
+                0.7723404255319148,
+                0.8297872340425532
+              ]
+            },
+            "preserve_same": {
+              "rate": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            "accuracy_diff": 0.8017057569296375
+          }
+        },
+        "pair_mean": {
+          "all": {
+            "n_source_pairs": 600,
+            "follow_diff": 0.8383333333333334,
+            "preserve_same": 0.8408333333333333
+          },
+          "E1_orig_correct": {
+            "n_source_pairs": 565,
+            "follow_diff": 0.8141592920353983,
+            "preserve_same": 0.9176991150442478
+          },
+          "E2_orig_and_same": {
+            "n_source_pairs": 544,
+            "follow_diff": 0.8005514705882353,
+            "preserve_same": 1.0
+          },
+          "E3_all_three": {
+            "n_source_pairs": 543,
+            "follow_diff": 0.7992633517495396,
+            "preserve_same": 1.0
+          }
+        },
+        "raw_selectivity": 0.5775,
+        "null_single_a": {
+          "a": 0.8525,
+          "selectivity_null_2a_minus_1_squared": 0.4970250000000001,
+          "fraction_of_observed_explained": 0.8606493506493508
+        },
+        "null_per_condition": {
+          "a_same": 0.8408333333333333,
+          "a_diff": 0.8383333333333334,
+          "P_change_same_null_2a1_minus_a": 0.2676652777777778,
+          "P_change_diff_null_a2_plus_1_minus_a2": 0.728938888888889,
+          "selectivity_null": 0.4612736111111112,
+          "fraction_of_observed_explained": 0.7987421837421839
+        },
+        "independence_diagnostic": {
+          "n": 1200,
+          "space": "class_correctness",
+          "observed_agreement": 0.875,
+          "independence_predicted_agreement": 0.7402875,
+          "gap": 0.1347125,
+          "independent": false,
+          "letter_space_agreement": 0.875,
+          "letter_space_predicted_agreement": 0.5173097222222223,
+          "letter_space_note": "Letter agreement is not the null's space: the two surface orders swap which letter names the queried class, so pooled letter marginals sit near 0.5 and the predicted value collapses toward chance. Quote the class-space gap, not this one.",
+          "note": "Agreement far above the independence prediction means the two readings are positively correlated, so 2a(1-a) is an upper bound on P(change|same), not a calibrated null. The 0.03 threshold is a convention, not a test."
+        },
+        "metric_identity": {
+          "follow_diff_equals_accuracy_diff": true,
+          "preserve_same_equals_accuracy_same": true,
+          "holds": true,
+          "n_follow_violations": 0,
+          "n_preserve_violations": 0,
+          "checked": "per view, not on the aggregate rate",
+          "explanation": "The different-class condition's ground truth is the donor class, so 'did the answer follow the edit' and 'was the answer correct' are the same event. follow/preserve are directional names for per-condition accuracy, not an independent estimand."
+        },
+        "sham_change_rate": {
+          "P_change_sham": 0.009166666666666667,
+          "note": "no-op rewrite; a deterministic model should not move here"
+        }
+      }
+    },
+    "r2_qwen7b": {
+      "display": "Qwen2.5-Omni-7B",
+      "family": "Qwen2.5-Omni",
+      "attribution": {
+        "source": "outputs/round2/confirm_qwen7b.json",
+        "views": 1200,
+        "records": 8400,
+        "records_dropped_unparsed": 0,
+        "clips": 600,
+        "original_accuracy": 0.8816666666666667,
+        "accuracy_by_condition": {
+          "original": 0.8816666666666667,
+          "target_replaced_diff": 0.845,
+          "target_replaced_same": 0.8591666666666666,
+          "nuisance_removed": 0.9016666666666666,
+          "background_removed": 0.88,
+          "silence": 0.5108333333333334,
+          "sham": 0.8825
+        },
+        "A_diff": 0.7316666666666667,
+        "A_same": 0.1225,
+        "A_nuisance_removed": 0.055,
+        "A_background_removed": 0.013333333333333334,
+        "A_sham": 0.005833333333333334,
+        "A_silence": 0.44416666666666665,
+        "selectivity": 0.6091666666666666,
+        "selectivity_ci95": [
+          0.5725,
+          0.6458333333333334
+        ],
+        "competence_gate": {
+          "original_accuracy": 0.8816666666666667,
+          "required": 0.75,
+          "silence_answer_change": 0.44416666666666665,
+          "silence_required": 0.2,
+          "passed": true
+        },
+        "sham_gate": {
+          "A_sham": 0.005833333333333334,
+          "required_max": 0.05,
+          "passed": true
+        },
+        "verdict": "SELECTIVITY POSITIVE: answers follow the evidence identity more than a matched in-place rewrite"
+      },
+      "follow": {
+        "source": "outputs/p0_fun_audio_chat/counterfactual_follow_3models.json",
+        "predictions": "outputs/round2/r2v2_qwen7b.jsonl",
+        "aggregation": "pooled_both_orders",
+        "n_views": 1200,
+        "n_source_pairs": 600,
+        "original_accuracy": 0.8816666666666667,
+        "subsets": {
+          "all": {
+            "n": 1200,
+            "follow_diff": {
+              "rate": 0.845,
+              "ci95": [
+                0.8208333333333333,
+                0.8691666666666666
+              ]
+            },
+            "preserve_same": {
+              "rate": 0.8591666666666666,
+              "ci95": [
+                0.8375,
+                0.8808333333333334
+              ]
+            },
+            "accuracy_diff": 0.845
+          },
+          "E1_orig_correct": {
+            "n": 1058,
+            "follow_diff": {
+              "rate": 0.8270321361058601,
+              "ci95": [
+                0.8003784295175024,
+                0.8536355051935789
+              ]
+            },
+            "preserve_same": {
+              "rate": 0.9177693761814745,
+              "ci95": [
+                0.897196261682243,
+                0.9358851674641149
+              ]
+            },
+            "accuracy_diff": 0.8270321361058601
+          },
+          "E2_orig_and_same": {
+            "n": 971,
+            "follow_diff": {
+              "rate": 0.8125643666323378,
+              "ci95": [
+                0.7852077001013171,
+                0.8413361169102297
+              ]
+            },
+            "preserve_same": {
+              "rate": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            "accuracy_diff": 0.8125643666323378
+          },
+          "E3_all_three": {
+            "n": 970,
+            "follow_diff": {
+              "rate": 0.8123711340206186,
+              "ci95": [
+                0.7849898580121704,
+                0.8411703239289446
+              ]
+            },
+            "preserve_same": {
+              "rate": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            "accuracy_diff": 0.8123711340206186
+          }
+        },
+        "pair_mean": {
+          "all": {
+            "n_source_pairs": 600,
+            "follow_diff": 0.845,
+            "preserve_same": 0.8591666666666666
+          },
+          "E1_orig_correct": {
+            "n_source_pairs": 566,
+            "follow_diff": 0.8312720848056537,
+            "preserve_same": 0.916077738515901
+          },
+          "E2_orig_and_same": {
+            "n_source_pairs": 542,
+            "follow_diff": 0.8191881918819188,
+            "preserve_same": 1.0
+          },
+          "E3_all_three": {
+            "n_source_pairs": 542,
+            "follow_diff": 0.8191881918819188,
+            "preserve_same": 1.0
+          }
+        },
+        "raw_selectivity": 0.6091666666666666,
+        "null_single_a": {
+          "a": 0.8816666666666667,
+          "selectivity_null_2a_minus_1_squared": 0.582677777777778,
+          "fraction_of_observed_explained": 0.9565161878704974
+        },
+        "null_per_condition": {
+          "a_same": 0.8591666666666666,
+          "a_diff": 0.845,
+          "P_change_same_null_2a1_minus_a": 0.24199861111111115,
+          "P_change_diff_null_a2_plus_1_minus_a2": 0.7380499999999999,
+          "selectivity_null": 0.4960513888888887,
+          "fraction_of_observed_explained": 0.8143114455084357
+        },
+        "independence_diagnostic": {
+          "n": 1200,
+          "space": "class_correctness",
+          "observed_agreement": 0.8775,
+          "independence_predicted_agreement": 0.774163888888889,
+          "gap": 0.10333611111111096,
+          "independent": false,
+          "letter_space_agreement": 0.8775,
+          "letter_space_predicted_agreement": 0.5091,
+          "letter_space_note": "Letter agreement is not the null's space: the two surface orders swap which letter names the queried class, so pooled letter marginals sit near 0.5 and the predicted value collapses toward chance. Quote the class-space gap, not this one.",
+          "note": "Agreement far above the independence prediction means the two readings are positively correlated, so 2a(1-a) is an upper bound on P(change|same), not a calibrated null. The 0.03 threshold is a convention, not a test."
+        },
+        "metric_identity": {
+          "follow_diff_equals_accuracy_diff": true,
+          "preserve_same_equals_accuracy_same": true,
+          "holds": true,
+          "n_follow_violations": 0,
+          "n_preserve_violations": 0,
+          "checked": "per view, not on the aggregate rate",
+          "explanation": "The different-class condition's ground truth is the donor class, so 'did the answer follow the edit' and 'was the answer correct' are the same event. follow/preserve are directional names for per-condition accuracy, not an independent estimand."
+        },
+        "sham_change_rate": {
+          "P_change_sham": 0.005833333333333334,
+          "note": "no-op rewrite; a deterministic model should not move here"
+        }
+      }
+    },
+    "r2_af3": {
+      "display": "Audio Flamingo 3",
+      "family": "NVIDIA/UMD",
+      "attribution": {
+        "source": "outputs/round2/confirm_af3.json",
+        "views": 1200,
+        "records": 12400,
+        "records_dropped_unparsed": 0,
+        "clips": 600,
+        "original_accuracy": 0.7041666666666667,
+        "accuracy_by_condition": {
+          "original": 0.7041666666666667,
+          "target_replaced_diff": 0.6991666666666667,
+          "target_replaced_same": 0.7083333333333334,
+          "nuisance_removed": 0.7241666666666666,
+          "background_removed": 0.7058333333333333,
+          "silence": 0.5,
+          "sham": 0.705
+        },
+        "A_diff": 0.4083333333333333,
+        "A_same": 0.0975,
+        "A_nuisance_removed": 0.07666666666666666,
+        "A_background_removed": 0.02666666666666667,
+        "A_sham": 0.009166666666666667,
+        "A_silence": 0.21416666666666667,
+        "selectivity": 0.3108333333333333,
+        "selectivity_ci95": [
+          0.2791666666666667,
+          0.3425
+        ],
+        "competence_gate": {
+          "original_accuracy": 0.7041666666666667,
+          "required": 0.75,
+          "silence_answer_change": 0.21416666666666667,
+          "silence_required": 0.2,
+          "passed": false
+        },
+        "sham_gate": {
+          "A_sham": 0.009166666666666667,
+          "required_max": 0.05,
+          "passed": true
+        },
+        "verdict": "NO CLAIM: the model is not competent on this task, so selectivity cannot be read (ADR-009 branch 3)"
+      },
+      "follow": null
+    },
+    "fun_audio_chat_8b": {
+      "display": "Fun-Audio-Chat-8B",
+      "family": "FunAudioLLM",
+      "attribution": {
+        "source": "outputs/p0_fun_audio_chat/confirm_fun_audio_chat_8b.json",
+        "views": 1200,
+        "records": 8400,
+        "records_dropped_unparsed": 0,
+        "clips": 600,
+        "original_accuracy": 0.8466666666666667,
+        "accuracy_by_condition": {
+          "original": 0.8466666666666667,
+          "target_replaced_diff": 0.8,
+          "target_replaced_same": 0.795,
+          "nuisance_removed": 0.8683333333333333,
+          "background_removed": 0.8475,
+          "silence": 0.465,
+          "sham": 0.8483333333333334
+        },
+        "A_diff": 0.6533333333333333,
+        "A_same": 0.15666666666666668,
+        "A_nuisance_removed": 0.075,
+        "A_background_removed": 0.010833333333333334,
+        "A_sham": 0.0016666666666666668,
+        "A_silence": 0.46,
+        "selectivity": 0.49666666666666665,
+        "selectivity_ci95": [
+          0.4533333333333333,
+          0.5391666666666666
+        ],
+        "competence_gate": {
+          "original_accuracy": 0.8466666666666667,
+          "required": 0.75,
+          "silence_answer_change": 0.46,
+          "silence_required": 0.2,
+          "passed": true
+        },
+        "sham_gate": {
+          "A_sham": 0.0016666666666666668,
+          "required_max": 0.05,
+          "passed": true
+        },
+        "verdict": "SELECTIVITY POSITIVE: answers follow the evidence identity more than a matched in-place rewrite"
+      },
+      "follow": {
+        "source": "outputs/p0_fun_audio_chat/counterfactual_follow_3models.json",
+        "predictions": "outputs/p0_fun_audio_chat/fun_audio_chat_8b.jsonl",
+        "aggregation": "pooled_both_orders",
+        "n_views": 1200,
+        "n_source_pairs": 600,
+        "original_accuracy": 0.8466666666666667,
+        "subsets": {
+          "all": {
+            "n": 1200,
+            "follow_diff": {
+              "rate": 0.8,
+              "ci95": [
+                0.7708333333333334,
+                0.8275
+              ]
+            },
+            "preserve_same": {
+              "rate": 0.795,
+              "ci95": [
+                0.765,
+                0.8241666666666667
+              ]
+            },
+            "accuracy_diff": 0.8
+          },
+          "E1_orig_correct": {
+            "n": 1016,
+            "follow_diff": {
+              "rate": 0.7677165354330708,
+              "ci95": [
+                0.7356435643564356,
+                0.8005865102639296
+              ]
+            },
+            "preserve_same": {
+              "rate": 0.8769685039370079,
+              "ci95": [
+                0.8498062015503876,
+                0.900990099009901
+              ]
+            },
+            "accuracy_diff": 0.7677165354330708
+          },
+          "E2_orig_and_same": {
+            "n": 891,
+            "follow_diff": {
+              "rate": 0.7384960718294051,
+              "ci95": [
+                0.7020316027088036,
+                0.7749445676274944
+              ]
+            },
+            "preserve_same": {
+              "rate": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            "accuracy_diff": 0.7384960718294051
+          },
+          "E3_all_three": {
+            "n": 891,
+            "follow_diff": {
+              "rate": 0.7384960718294051,
+              "ci95": [
+                0.7020316027088036,
+                0.7749445676274944
+              ]
+            },
+            "preserve_same": {
+              "rate": 1.0,
+              "ci95": [
+                1.0,
+                1.0
+              ]
+            },
+            "accuracy_diff": 0.7384960718294051
+          }
+        },
+        "pair_mean": {
+          "all": {
+            "n_source_pairs": 600,
+            "follow_diff": 0.8,
+            "preserve_same": 0.795
+          },
+          "E1_orig_correct": {
+            "n_source_pairs": 530,
+            "follow_diff": 0.769811320754717,
+            "preserve_same": 0.8716981132075472
+          },
+          "E2_orig_and_same": {
+            "n_source_pairs": 481,
+            "follow_diff": 0.737006237006237,
+            "preserve_same": 1.0
+          },
+          "E3_all_three": {
+            "n_source_pairs": 481,
+            "follow_diff": 0.737006237006237,
+            "preserve_same": 1.0
+          }
+        },
+        "raw_selectivity": 0.49666666666666665,
+        "null_single_a": {
+          "a": 0.8466666666666667,
+          "selectivity_null_2a_minus_1_squared": 0.48071111111111114,
+          "fraction_of_observed_explained": 0.967874720357942
+        },
+        "null_per_condition": {
+          "a_same": 0.795,
+          "a_diff": 0.8,
+          "P_change_same_null_2a1_minus_a": 0.32594999999999996,
+          "P_change_diff_null_a2_plus_1_minus_a2": 0.6800000000000002,
+          "selectivity_null": 0.3540500000000002,
+          "fraction_of_observed_explained": 0.712852348993289
+        },
+        "independence_diagnostic": {
+          "n": 1200,
+          "space": "class_correctness",
+          "observed_agreement": 0.8433333333333334,
+          "independence_predicted_agreement": 0.7045333333333333,
+          "gap": 0.13880000000000003,
+          "independent": false,
+          "letter_space_agreement": 0.8433333333333334,
+          "letter_space_predicted_agreement": 0.5015166666666666,
+          "letter_space_note": "Letter agreement is not the null's space: the two surface orders swap which letter names the queried class, so pooled letter marginals sit near 0.5 and the predicted value collapses toward chance. Quote the class-space gap, not this one.",
+          "note": "Agreement far above the independence prediction means the two readings are positively correlated, so 2a(1-a) is an upper bound on P(change|same), not a calibrated null. The 0.03 threshold is a convention, not a test."
+        },
+        "metric_identity": {
+          "follow_diff_equals_accuracy_diff": true,
+          "preserve_same_equals_accuracy_same": true,
+          "holds": true,
+          "n_follow_violations": 0,
+          "n_preserve_violations": 0,
+          "checked": "per view, not on the aggregate rate",
+          "explanation": "The different-class condition's ground truth is the donor class, so 'did the answer follow the edit' and 'was the answer correct' are the same event. follow/preserve are directional names for per-condition accuracy, not an independent estimand."
+        },
+        "sham_change_rate": {
+          "P_change_sham": 0.0016666666666666668,
+          "note": "no-op rewrite; a deterministic model should not move here"
+        }
+      }
+    }
+  },
+  "confound_matched": {
+    "band": 0.15,
+    "items_with_distances": 600,
+    "models": {
+      "r2_qwen7b": {
+        "A_diff": 0.8633333333333333,
+        "A_same": 0.20166666666666666,
+        "selectivity": 0.6616666666666666,
+        "median_distance_diff": 3.0979960296270166,
+        "median_distance_same": 2.574637063447936,
+        "matched_items": 236,
+        "matched_selectivity": 0.6567796610169492,
+        "matched_bootstrap_95": [
+          0.5847457627118644,
+          0.7245762711864407
+        ],
+        "by_distance_quintile": [
+          {
+            "quintile": 1,
+            "n": 120,
+            "median_distance_diff": 2.2762158716699967,
+            "A_diff": 0.85,
+            "A_same": 0.19166666666666668,
+            "selectivity": 0.6583333333333333
+          },
+          {
+            "quintile": 2,
+            "n": 120,
+            "median_distance_diff": 2.691001591762909,
+            "A_diff": 0.8583333333333333,
+            "A_same": 0.25833333333333336,
+            "selectivity": 0.5999999999999999
+          },
+          {
+            "quintile": 3,
+            "n": 120,
+            "median_distance_diff": 3.0979960296270166,
+            "A_diff": 0.8666666666666667,
+            "A_same": 0.175,
+            "selectivity": 0.6916666666666667
+          },
+          {
+            "quintile": 4,
+            "n": 120,
+            "median_distance_diff": 3.561717685736419,
+            "A_diff": 0.875,
+            "A_same": 0.18333333333333332,
+            "selectivity": 0.6916666666666667
+          },
+          {
+            "quintile": 5,
+            "n": 120,
+            "median_distance_diff": 4.330646153547198,
+            "A_diff": 0.8666666666666667,
+            "A_same": 0.2,
+            "selectivity": 0.6666666666666667
+          }
+        ]
+      },
+      "r2_qwen3b": {
+        "A_diff": 0.8516666666666667,
+        "A_same": 0.21166666666666667,
+        "selectivity": 0.64,
+        "median_distance_diff": 3.0979960296270166,
+        "median_distance_same": 2.574637063447936,
+        "matched_items": 236,
+        "matched_selectivity": 0.5635593220338984,
+        "matched_bootstrap_95": [
+          0.48305084745762716,
+          0.6398305084745763
+        ],
+        "by_distance_quintile": [
+          {
+            "quintile": 1,
+            "n": 120,
+            "median_distance_diff": 2.2762158716699967,
+            "A_diff": 0.8,
+            "A_same": 0.2916666666666667,
+            "selectivity": 0.5083333333333333
+          },
+          {
+            "quintile": 2,
+            "n": 120,
+            "median_distance_diff": 2.691001591762909,
+            "A_diff": 0.8583333333333333,
+            "A_same": 0.23333333333333334,
+            "selectivity": 0.625
+          },
+          {
+            "quintile": 3,
+            "n": 120,
+            "median_distance_diff": 3.0979960296270166,
+            "A_diff": 0.8333333333333334,
+            "A_same": 0.18333333333333332,
+            "selectivity": 0.65
+          },
+          {
+            "quintile": 4,
+            "n": 120,
+            "median_distance_diff": 3.561717685736419,
+            "A_diff": 0.8916666666666667,
+            "A_same": 0.2,
+            "selectivity": 0.6916666666666667
+          },
+          {
+            "quintile": 5,
+            "n": 120,
+            "median_distance_diff": 4.330646153547198,
+            "A_diff": 0.875,
+            "A_same": 0.15,
+            "selectivity": 0.725
+          }
+        ]
+      }
+    }
+  },
+  "confound_matched_view": {
+    "aggregation": "per-option-order view, bootstrap resampled by soundscape",
+    "band": 0.15,
+    "items_with_distances": 600,
+    "models": {
+      "r2_qwen7b": {
+        "matched_items": 236,
+        "matched_trials": 472,
+        "matched_selectivity": 0.6165254237288136,
+        "matched_bootstrap_95": [
+          0.5550847457627119,
+          0.6779661016949152
+        ]
+      },
+      "r2_qwen3b": {
+        "matched_items": 236,
+        "matched_trials": 472,
+        "matched_selectivity": 0.5296610169491526,
+        "matched_bootstrap_95": [
+          0.461864406779661,
+          0.597457627118644
+        ]
+      }
+    }
+  },
+  "class_profile": {
+    "min_items": 8,
+    "models": {
+      "r2_qwen7b": {
+        "classes": 33,
+        "accuracy_spread": {
+          "min": 0.7142857142857143,
+          "median": 0.88,
+          "max": 0.9807692307692307,
+          "stdev": 0.07365261804858493
+        },
+        "selectivity_spread": {
+          "min": 0.375,
+          "median": 0.6000000000000001,
+          "max": 0.875
+        },
+        "correlations_across_classes": {
+          "accuracy_vs_selectivity": 0.6675664135582704,
+          "accuracy_vs_A_diff": 0.44444879488294087,
+          "accuracy_vs_A_same": -0.5785926762313438
+        },
+        "flagged_competent_but_low_selectivity": [],
+        "largest_negative_selectivity_residuals": [
+          {
+            "class": "keys jangling",
+            "n": 30,
+            "accuracy": 0.933,
+            "selectivity": 0.467,
+            "residual": -0.212
+          },
+          {
+            "class": "something shattering",
+            "n": 50,
+            "accuracy": 0.88,
+            "selectivity": 0.4,
+            "residual": -0.211
+          },
+          {
+            "class": "flatulence",
+            "n": 32,
+            "accuracy": 0.844,
+            "selectivity": 0.406,
+            "residual": -0.158
+          },
+          {
+            "class": "a heavy thumping sound",
+            "n": 52,
+            "accuracy": 0.981,
+            "selectivity": 0.596,
+            "residual": -0.143
+          },
+          {
+            "class": "scissors cutting",
+            "n": 32,
+            "accuracy": 0.781,
+            "selectivity": 0.375,
+            "residual": -0.11
+          }
+        ]
+      },
+      "r2_qwen3b": {
+        "classes": 33,
+        "accuracy_spread": {
+          "min": 0.6111111111111112,
+          "median": 0.8571428571428571,
+          "max": 1.0,
+          "stdev": 0.09776922729221159
+        },
+        "selectivity_spread": {
+          "min": 0.21875,
+          "median": 0.5666666666666667,
+          "max": 0.8846153846153847
+        },
+        "correlations_across_classes": {
+          "accuracy_vs_selectivity": 0.6716970147007963,
+          "accuracy_vs_A_diff": 0.559826507075474,
+          "accuracy_vs_A_same": -0.5337255526731619
+        },
+        "flagged_competent_but_low_selectivity": [
+          "something shattering"
+        ],
+        "largest_negative_selectivity_residuals": [
+          {
+            "class": "something shattering",
+            "n": 50,
+            "accuracy": 0.92,
+            "selectivity": 0.34,
+            "residual": -0.321
+          },
+          {
+            "class": "a phone ringtone",
+            "n": 32,
+            "accuracy": 0.781,
+            "selectivity": 0.219,
+            "residual": -0.285
+          },
+          {
+            "class": "flatulence",
+            "n": 32,
+            "accuracy": 0.844,
+            "selectivity": 0.375,
+            "residual": -0.2
+          },
+          {
+            "class": "a gunshot",
+            "n": 34,
+            "accuracy": 0.912,
+            "selectivity": 0.5,
+            "residual": -0.152
+          },
+          {
+            "class": "a whooshing sound",
+            "n": 30,
+            "accuracy": 0.967,
+            "selectivity": 0.567,
+            "residual": -0.148
+          }
+        ]
+      }
+    }
+  }
+}

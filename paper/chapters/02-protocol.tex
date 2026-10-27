@@ -1,0 +1,33 @@
+\section{Soundscape intervention protocol}
+\label{sec:protocol}
+
+Figure~\ref{fig:conditions} previews the response profile of the interventions.
+Each soundscape contains a localized query event, a temporally separate
+nuisance event, and continuous ambience. One of the two answer options names
+the query class. The other names a class absent from the placed foregrounds,
+and neither option names the nuisance event.
+
+The different-class variant replaces the query event with a recording from the
+alternative class. Its matched same-class control inserts a different recording
+of the query class into exactly the same interval. Both variants use the same
+donor-fitting, level-estimation, background-copying, and crossfade procedures.
+Their comparison measures the response to changing the queried class relative
+to ordinary rewriting of that interval.
+
+Donor segments remain within their annotated event intervals, and separate
+foreground events are at least 0.3\,s apart. The same-class and different-class
+replacements use the same target interval and matched edit durations. Post-render
+checks verify a median background-noise-floor difference below 1\,dB between
+replacement and original spans, fewer than 5\% of soundscapes above a 10\,dB
+difference, and boundary first differences within three times those of the
+original.
+
+The original audio anchors the six interventions. The sham self-replacement
+follows the same editing path, with floating-point rounding changing at most
+1 LSB in about 6 of 160,000 samples. The same-class rewrite preserves the
+queried class, and whole-clip silence removes the soundscape. The different-class
+rewrite substitutes an event from the alternative class. Nuisance removal and
+an event-free background-window rewrite test edits away from the query.
+Each waveform is queried in both option orders with
+``Which of these two sounds is present in it?'', requesting
+\texttt{Answer: A} or \texttt{Answer: B}.

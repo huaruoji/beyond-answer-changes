@@ -1,0 +1,8 @@
+# Tooling for the paper directory. Kept out of the root requirements.txt, which
+# covers the audio pipeline, and requirements-models.txt, which covers inference.
+#   make_reference_figures.py -> matplotlib, numpy
+#   verify_reference_draft.py -> pypdf (PDF layout/font checks only; the
+#                                evidence checks need nothing beyond the stdlib)
+matplotlib>=3.8,<4
+numpy>=1.26,<3
+pypdf>=5,<7

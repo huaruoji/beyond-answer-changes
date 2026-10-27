@@ -1,0 +1,15 @@
+# LaTeX build artifacts — regenerable from the sources in this directory.
+# Only sources and the distributed reference files are tracked.
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.lof
+*.lot
+# Compiled sample from the template kit; the paper's own PDF comes later.
+Template.pdf

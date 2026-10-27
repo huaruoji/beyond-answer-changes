@@ -1,0 +1,56 @@
+\section{Introduction}
+\label{sec:intro}
+
+Audio-language models answer natural-language questions about soundscapes by
+combining sound recognition with language-based reasoning
+\cite{qwen25omni2025,funaudiochat2026}. Benchmarks such as the Massive Multi-Task
+Audio Understanding and Reasoning benchmark span speech, environmental sounds,
+and music \cite{mmau2024}. A central question is whether an answer is genuinely
+supported by the acoustic evidence. Correct responses can often be recovered
+from text alone \cite{authorship2026impact}, and improvements in audio question
+answering can partly reflect better text-based reasoning \cite{omnir1}. For
+environmental sounds this dependence is also local, since a question about a
+brief bark concerns one event within a longer recording. Evaluating the answer
+therefore requires linking it to the class of that event.
+
+Intervention methods examine evidence use by perturbing the audio and observing
+how the answer moves. Noise and region-guided masking probe audio faithfulness
+\cite{lalmfaith2026}. Attention-guided masking with a duration-matched control
+connects localized perturbations to prediction changes \cite{mapo2026}.
+Counterfactual voice grounding tests speaker-attributed reasoning
+\cite{hear2026whosaidwhat}, and paralinguistic audits vary acoustic cues while
+holding transcripts fixed \cite{paraling2026}. These approaches provide useful
+tests of acoustic grounding. For a local environmental-sound question, an answer
+change depends on what the intervention changes at the queried location. A
+replacement can change the event's class or rewrite the same interval with
+another recording of that class. The matched same-class replacement measures
+responses to local rewriting while preserving the queried class. Comparing it
+with a different-class replacement asks how much additional answer movement
+comes from changing that class under the same editing procedure. Removal and
+masking tests instead probe what happens when local evidence is deleted or
+degraded. The same
+concern arises in text-domain counterfactual prompting, where a targeted edit
+is a compound treatment that benefits from a meaning-preserving baseline
+\cite{yang2026compared}.
+
+This paper addresses how to attribute the movement of an answer after a local
+waveform intervention. \emph{When an audio-language model changes its answer
+after a local waveform intervention, how can we tell whether it responded to
+the event's class or to the fact that the waveform was edited?} We introduce a
+matched local waveform intervention protocol on synthetic soundscapes with
+annotated event intervals, and make three contributions.
+(i)~\textbf{A matched replacement protocol}. Class-changing and class-preserving
+replacements share the target span, donor-fitting procedure, level estimate,
+and crossfade. The class-preserving arm measures response to local waveform
+rewriting. Nuisance, background-window, silence, and sham controls complete the
+design.
+(ii)~\textbf{A measure of answer changes and their direction}. We report
+whether the answer changes and whether it identifies the replacement class.
+An exact decomposition relates the observed gap to an accuracy-based
+independence reference and covariance between condition outcomes.
+(iii)~\textbf{A cross-architecture behavioral result}. Across Qwen2.5-Omni-7B
+and Qwen2.5-Omni-3B \cite{qwen25omni2025} and Fun-Audio-Chat-8B
+\cite{funaudiochat2026}, class-changing replacements produce 49.7 to 60.9
+percentage points more answer changes than matched class-preserving rewrites.
+Sham answer changes stay below 1.0\%, and soundscape-weighted selective
+accuracy reaches 73.7 to 81.9\%.

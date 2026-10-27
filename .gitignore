@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.DS_Store
+
+# LaTeX build artifacts, except the bibliography the manuscript needs
+paper/reference-draft.aux
+paper/reference-draft.blg
+paper/reference-draft.fdb_latexmk
+paper/reference-draft.fls
+paper/reference-draft.log
+paper/reference-draft.out
+paper/reference-draft.synctex.gz

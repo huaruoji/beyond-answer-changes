@@ -1,0 +1,65 @@
+{
+  "experiment": "p0-third-model",
+  "purpose": "Run a different-architecture audio LLM on the frozen 014 confirm grid, to test whether the counterfactual-follow result is a Qwen property or holds for other families.",
+  "split": "confirm",
+  "manifest": {
+    "path": "data/processed/synth/confirm.jsonl",
+    "sha256": "4a8fcde3e16b9fb8cefa5082dd90b1602a5d3cf03873156d0804e003080a566c",
+    "rows": 8400,
+    "source_pairs": 600,
+    "vocab": "data/processed/synth/vocab_confirm.txt",
+    "vocab_sha256": "1fc0a1e4841f879ff37507ab4c4e002b163474a7bf78402c425681098fa99506",
+    "seed": 20260914
+  },
+  "model": {
+    "name": "Fun-Audio-Chat-8B",
+    "hf_repo": "FunAudioLLM/Fun-Audio-Chat-8B",
+    "hf_revision": "7bf72dc7c705493f817178a0859efff91e9cf73c",
+    "config_sha256": "93baa3e53d75dd055f4979c32faae25a868bb322a81deab09bfe3487339cc8d2",
+    "local_path": "models/Fun-Audio-Chat-8B",
+    "code_repo": "https://github.com/FunAudioLLM/Fun-Audio-Chat",
+    "code_commit": "8ba984b",
+    "model_family": "fun-audio-chat-8b",
+    "dtype": "bfloat16",
+    "attn": "transformers defaults (AutoModelForSeq2SeqLM)"
+  },
+  "decoding": {
+    "text_greedy": true,
+    "disable_speech": true,
+    "do_sample": false,
+    "max_new_tokens": 128,
+    "note": "Greedy text-only decode, per examples/infer_s2t.py; speech generation disabled."
+  },
+  "prompt": {
+    "system": "You are asked to generate text tokens.",
+    "user_template": "<|audio_bos|><|AUDIO|><|audio_eos|>\n{question}",
+    "question_source": "unchanged from the frozen manifest (the same A/B text the Qwen runs saw)"
+  },
+  "conditions": [
+    "original",
+    "target_replaced_diff",
+    "target_replaced_same",
+    "nuisance_removed",
+    "background_removed",
+    "sham",
+    "silence"
+  ],
+  "runner": "scripts/evaluate_manifest.py --model-family fun-audio-chat-8b",
+  "audio_provenance": {
+    "regenerated_on": "QRH (172.16.2.84), 2026-09-21",
+    "why": "The third-model run was executed on a GPU host that did not have the confirm audio, so it was rebuilt there from the pinned raw sources. The originals remained available locally and were used afterwards to verify the rebuild (see waveform_check).",
+    "inputs": {
+      "events": "Zenodo 5574135 FSD_MIX_SED.source.tar.gz (948 MB)",
+      "background": "hf-mirror wetdog/TUT-urban-acoustic-scenes-2018-development-16bit, shards test-00000..00003-of-00010 (same filenames as corpus.json)",
+      "vocab": "Zenodo 5574135 vocab.json"
+    },
+    "determinism_check": "600/600 regenerated JAMS and all 8400 manifest rows bit-identical to the tracked confirm.jsonl / confirm_jams; prepare_synth_corpus.py reproduced the tracked corpus.json with no diff.",
+    "waveform_check": "The original confirm waveforms were still on this host at data/processed/synth/confirm_audio/ (4200 wavs, ctime 2026-09-13, hardlinked from round2_audio/). All 4200 SHA256 entries in audio_digests.json match those originals exactly (4200 match, 0 mismatch), so the audio the third model consumed is sample-identical to the audio the Qwen runs consumed.",
+    "residual_risk": "None outstanding at the waveform level; the SHA256 comparison above closes it. JAMS equality alone would only have proved placement/RNG identity, which is why the digest comparison was run against the surviving originals.",
+    "correction": "An earlier revision of this file claimed that no original wav was available and that sample-level identity could not be settled. That was incorrect -- the originals were on this host throughout. The waveform_check field above supersedes that claim."
+  },
+  "environment": {
+    "synth_env": "conda env 'acg' (python 3.11, sox, scaper==1.6.5, soxbindings, numpy 2.4.6)",
+    "model_env": "conda env 'acg-model' (python 3.12, torch 2.8.0, transformers 4.52.3, numpy 1.26.4, librosa)"
+  }
+}

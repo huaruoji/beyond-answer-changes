@@ -1,0 +1,6 @@
+# Install in the project-specific model environment after a CUDA PyTorch build.
+accelerate>=1.6,<2
+bitsandbytes>=0.45,<1
+qwen-omni-utils>=0.0.8
+transformers>=5.0,<6
+

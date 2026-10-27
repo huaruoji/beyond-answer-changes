@@ -1,0 +1,107 @@
+% Author-review reference draft; official requirements are in ../docs/.
+\documentclass{article}
+\usepackage{spconf,amsmath,graphicx,hyperref}
+\usepackage{amssymb}
+% The title must match the online submission form character for character, so
+% the colon stays here even though the prose avoids colons.
+\title{Beyond Answer Changes: Matched Same-Class Controls\\
+for Local Audio Evidence}
+% Four authors with four affiliations use the paper kit's \name and \address
+% format. The full-width parbox lets the long institution names wrap within the
+% text area.
+\name{Yunuo Wang$^{1,\dagger}$ \qquad Maoyuan Chen$^{2,\dagger}$ \qquad Yuanjin Huang$^{3}$ \qquad Xing Liu$^{4}$ \thanks{$^{\dagger}$These authors contributed equally to this work.}}
+% spconf typesets the author block in a centred tabular, which adds 2\tabcolsep
+% of padding. A parbox of exactly \textwidth therefore makes the block 12pt too
+% wide and shifts it 6pt right of the page centre, so subtract the padding.
+\address{\parbox[t]{\dimexpr\textwidth-2\tabcolsep\relax}{\centering
+$^{1}$The Hong Kong University of Science and Technology (Guangzhou), Guangzhou, China\\
+$^{2}$School of Computer Science, Wuhan University, Wuhan, China\\
+$^{3}$National University of Singapore, Singapore\\
+$^{4}$Northeastern University, Toronto, Canada}}
+\begin{document}
+\maketitle
+\begin{abstract}
+For audio-language models, an answer change after a local sound-event edit can reflect a response to the event's class, sensitivity to waveform rewriting, or both. We compare matched same-class and different-class replacements of a queried event. Both use the same interval, level estimate, donor fitting, and crossfade, while the same-class replacement preserves the correct answer. Across 600 synthetic soundscapes and three models from two architecture families, different-class replacements produce 49.7 to 60.9 percentage points more answer changes than same-class replacements. Same-class accuracy remains within 5.2 percentage points of original accuracy. Among trials with correct original and same-class answers, soundscape-weighted selective accuracy for the inserted class is 73.7 to 81.9\%, averaging eligible trials within each soundscape and then weighting eligible soundscapes equally. This protocol tests how model answers respond to local changes in event class.
+\end{abstract}
+\begin{keywords}
+audio-language models, local evidence, waveform interventions, evaluation
+\end{keywords}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/reference_identity.pdf}
+\caption{Changing the queried event's class elicits more answer change than
+rewriting the same interval with another recording of that class. Nuisance and
+sham edits produce smaller responses. The rightmost group shows the paired
+gap $\Delta$ and its 95\% interval. The bootstrap resamples
+soundscapes with both option orders and all conditions kept together.}
+\label{fig:conditions}
+\end{figure*}
+
+\input{chapters/01-introduction}
+\input{chapters/02-protocol}
+
+\begin{table*}[t]
+\centering
+\caption{Answer changes relative to the original answer (\%) across 1,200
+trials per model. Each of 600 soundscapes contributes two option orders and six
+interventions. $\Delta$ is the different-class minus same-class answer-change
+gap. The 95\% bootstrap intervals resample paired soundscapes, keeping both
+option orders and intervention conditions together.}
+\label{tab:conditions}
+\begin{tabular}{lrrrrrrr}
+\hline
+Model & Different & Same & Nuisance & Background- & Silence & Sham &
+$\Delta$ (95\% CI) \\
+ & class & class & removal & window & & & \\
+\hline
+Qwen2.5-Omni-7B & 73.17 & 12.25 & 5.50 & 1.33 & 44.42 & 0.58 &
+\textbf{60.92} [57.25, 64.58] \\
+Qwen2.5-Omni-3B & 70.25 & 12.50 & 7.08 & 1.50 & 42.75 & 0.92 &
+\textbf{57.75} [54.00, 61.67] \\
+Fun-Audio-Chat-8B & 65.33 & 15.67 & 7.50 & 1.08 & 46.00 & 0.17 &
+\textbf{49.67} [45.33, 53.92] \\
+\hline
+\end{tabular}
+\end{table*}
+
+\input{chapters/03-metrics}
+
+\begin{table*}[t]
+\centering
+\caption{Correct identification before and after replacement. Selective
+accuracy averages eligible trials within each soundscape and then weights
+eligible soundscapes equally. Eligibility requires correct original and
+same-class answers. The first three accuracy columns use all 1,200 trials.
+Eligible trial and soundscape counts summarize coverage.}
+\label{tab:follow}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{lcccccc}
+\hline
+Model & Original & Same-class & Different-class & Selective & Eligible &
+Eligible \\
+ & accuracy & accuracy & accuracy & accuracy & trials & soundscapes \\
+\hline
+Qwen2.5-Omni-7B~\cite{qwen25omni2025} & .882 & .859 & .845 & .819 & 971 & 542 \\
+Qwen2.5-Omni-3B~\cite{qwen25omni2025} & .853 & .841 & .838 & .801 & 941 & 544 \\
+Fun-Audio-Chat-8B~\cite{funaudiochat2026} & .847 & .795 & .800 & .737 & 891 & 481 \\
+\hline
+\end{tabular}
+\end{table*}
+
+\input{chapters/04-results}
+\input{chapters/06-limitations}
+\input{chapters/05-discussion}
+
+\section*{Acknowledgments}
+This work received no external funding. The authors have no competing interests
+to disclose.
+% TODO(authors): confirm the funding and COI statements.
+
+\section*{Compliance with Ethical Standards}
+This study recruits no human participants and collects no personal data. The informal listening checks were performed by the authors themselves on synthesized audio. Sound events come from FSD50K through the FSD-MIX-SED source release, and backgrounds come from TUT Urban Acoustic Scenes 2018. Each corpus is used under its own terms, and no redistribution right is claimed for either.
+% TODO(authors): ORCIDs and the corresponding author.
+
+\bibliographystyle{IEEEbib}
+\bibliography{reference-refs}
+\end{document}
